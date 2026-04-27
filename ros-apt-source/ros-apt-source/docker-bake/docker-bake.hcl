@@ -1,5 +1,5 @@
 variable "SUPPORTED_ROS_PLATFORMS" {
-  default = [ubuntu:focal,ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie]
+  default = ["ubuntu:focal", "ubuntu:jammy", "ubuntu:noble", "debian:bookworm", "debian:buster", "debian:bullseye"]
 }
 
 group "default" {
