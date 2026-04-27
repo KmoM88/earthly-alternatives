@@ -1,25 +1,34 @@
-variable "distro" {
-  default = "ubuntu:focal"
+variable "SUPPORTED_ROS_PLATFORMS" {
+  default = ["ubuntu:focal"]
 }
 
 group "default" {
-  targets = ["test"]
+  targets = ["build"]
+}
+
+target "_common" {
+  context = "."
+  dockerfile = "Dockerfile"
 }
 
 target "build" {
-  dockerfile = "Dockerfile"
-  target = "build"
-  args = {
-    distro = "${distro}"
+  inherits = ["_common"]
+  name = "build-${replace(distro, ":", "-")}"
+  matrix = {
+    distro = SUPPORTED_ROS_PLATFORMS
   }
-  tags = ["ros-apt-source-builder"]
+  args = {
+    DISTRO = "${distro}"
+  }
+  target = "artifacts"
+  output = ["./output/${replace(distro, ":", "-")}"]
 }
 
-target "test" {
-  dockerfile = "Dockerfile"
-  target = "test"
+target "test-install" {
+  inherits = ["_common"]
   args = {
-    distro = "${distro}"
+    DISTRO = "ubuntu:noble"
+    REPO = "ros2"
   }
-  depends-on = ["build"]
+  target = "test-install"
 }
