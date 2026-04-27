@@ -19,7 +19,7 @@ group "default" {
 }
 
 target "_common" {
-  context = "."
+  context = "ros-apt-source/ros-apt-source/docker-bake"
   dockerfile = "Dockerfile"
 }
 
