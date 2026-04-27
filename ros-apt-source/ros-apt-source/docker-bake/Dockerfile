@@ -38,9 +38,19 @@ COPY --from=builder /tmp/*.tar.xz /
 COPY --from=builder /tmp/*.deb /
 
 # --- Test stage (test-aptsource-pkg-install) ---
-FROM ${DISTRO} AS test-install
+FROM ${DISTRO} AS test-aptsource
 ARG DISTRO
 ARG REPO=ros2
+ARG VERSION=ros2
+ENV DEBIAN_FRONTEND=noninteractive
 COPY --from=artifacts /*.deb /tmp/
-RUN apt-get update && apt-get install -y /tmp/*.deb
-RUN [ -f /usr/share/ros-apt-source/${REPO}.sources ]
+RUN apt-get update && apt-get install -y /tmp/${REPO}-apt-source*.deb
+RUN cat /usr/share/ros-apt-source/${REPO}.sources
+RUN if [ -f /usr/share/ros-apt-source/${REPO}.sources ] && \
+      [ -e /usr/share/ros-apt-source/${REPO}.sources ] && \
+      [ -s /usr/share/ros-apt-source/${REPO}.sources ] \
+      ; then exit 0; else exit 1; fi;
+RUN if [ -f /usr/share/keyrings/${VERSION}-archive-keyring.gpg ] && \
+      [ -e /usr/share/keyrings/${VERSION}-archive-keyring.gpg ] && \
+      [ -s /usr/share/keyrings/${VERSION}-archive-keyring.gpg ] \
+      ; then exit 0; else exit 1; fi; 
