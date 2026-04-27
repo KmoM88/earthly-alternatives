@@ -1,0 +1,3 @@
+[submodule "submodules/ros-apt-source"]
+	path = submodules/ros-apt-source
+	url = https://github.com/ros-infrastructure/ros-apt-source.git
