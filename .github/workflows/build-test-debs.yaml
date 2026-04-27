@@ -3,13 +3,12 @@ name: Build Deb packages (ros-apt-source)
 on:
   workflow_dispatch:
 
-defaults:
-    run:
-      working-directory: ./submodules/ros-apt-source/ros-apt-source
-
 jobs:
-  build-ros2-apt-source:
+  build-ros2-apt-source-earthly:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./submodules/ros-apt-source/ros-apt-source
     strategy:
       matrix:
         distro: [ubuntu:focal,ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie]
@@ -21,12 +20,33 @@ jobs:
         run: |
           sudo wget 'https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64' -O /usr/local/bin/earthly
           sudo chmod 755 /usr/local/bin/earthly
-      - name: Build apt-source deb
+      - name: Build apt-source deb with Earthly
         run: earthly +ros-apt-source --distro=${{ matrix.distro }}
       - name: Test ros 2 apt-source deb 
         run:  | 
               earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros2
               earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros2-testing
+
+  build-ros2-apt-source-bake:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ros-apt-source/ros-apt-source
+    strategy:
+      matrix:
+        distro: [ubuntu:focal,ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: 'true'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and test deb with Docker Bake
+        run: >
+          docker buildx bake --file ./docker-bake/docker-bake.hcl
+          --set "*.args.distro=${{ matrix.distro }}"
+          --set "build.context=docker-bake"
+          --set "test.context=docker-bake"
 
   # build-ros-apt-source:
   #   runs-on: ubuntu-latest
