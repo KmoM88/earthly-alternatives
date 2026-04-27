@@ -41,12 +41,12 @@ jobs:
       - name: Build deb with Docker Bake
         uses: docker/bake-action@v7
         with:
-          files: ./docker-bake.hcl
+          files: docker-bake.hcl
           targets: build-ros2
       - name: Test deb with Docker Bake
         uses: docker/bake-action@v7
         with:
-          files: ./docker-bake.hcl
+          files: docker-bake.hcl
           targets: test-ros2-aptsource
 
   # build-ros-apt-source:
