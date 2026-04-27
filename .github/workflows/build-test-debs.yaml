@@ -29,9 +29,6 @@ jobs:
 
   build-ros2-apt-source-bake:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./ros-apt-source/ros-apt-source/docker-bake
     steps:
       - uses: actions/checkout@v6
         with:
@@ -41,12 +38,12 @@ jobs:
       - name: Build deb with Docker Bake
         uses: docker/bake-action@v7
         with:
-          files: docker-bake.hcl
+          files: ./ros-apt-source/ros-apt-source/docker-bake/docker-bake.hcl
           targets: build-ros2
       - name: Test deb with Docker Bake
         uses: docker/bake-action@v7
         with:
-          files: docker-bake.hcl
+          files: ./ros-apt-source/ros-apt-source/docker-bake/docker-bake.hcl
           targets: test-ros2-aptsource
 
   # build-ros-apt-source:
