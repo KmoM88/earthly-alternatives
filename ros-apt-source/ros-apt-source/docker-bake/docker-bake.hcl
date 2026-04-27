@@ -1,5 +1,5 @@
-variable "SUPPORTED_ROS_PLATFORMS" {
-  default = ["ubuntu:focal", "ubuntu:jammy", "ubuntu:noble", "debian:bookworm", "debian:buster", "debian:bullseye"]
+variable "DISTRIBUTION" {
+  default = "ubuntu:focal,ubuntu:jammy,ubuntu:noble,debian:bookworm,debian:buster,debian:bullseye"
 }
 
 group "default" {
@@ -15,13 +15,13 @@ target "build" {
   inherits = ["_common"]
   name = "build-${replace(distro, ":", "-")}"
   matrix = {
-    distro = SUPPORTED_ROS_PLATFORMS
+    distro = split(",", DISTRIBUTION)
   }
   args = {
     DISTRO = "${distro}"
   }
   target = "artifacts"
-  output = ["./output/${replace(distro, ":", "-")}"]
+  output = ["./output/${distro}"]
 }
 
 target "test-install" {

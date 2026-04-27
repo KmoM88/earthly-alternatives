@@ -42,9 +42,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and test deb with Docker Bake
-        run:  |
-              docker buildx bake --file docker-bake.hcl \
-              --set "*.args.distro=ubuntu:focal"
+        run:  DISTRIBUTION=${{ matrix.distro }} docker buildx bake --file docker-bake.hcl 
 
   # build-ros-apt-source:
   #   runs-on: ubuntu-latest

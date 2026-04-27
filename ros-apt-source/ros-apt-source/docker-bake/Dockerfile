@@ -43,5 +43,4 @@ ARG DISTRO
 ARG REPO=ros2
 COPY --from=artifacts /*.deb /tmp/
 RUN apt-get update && apt-get install -y /tmp/*.deb
-# Aquí irían tus validaciones de archivos (IF -f ...)
 RUN [ -f /usr/share/ros-apt-source/${REPO}.sources ]
