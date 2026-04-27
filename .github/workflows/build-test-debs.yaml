@@ -39,9 +39,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Build deb with Docker Bake
-        run:  docker buildx bake build-ros2 --file docker-bake.hcl 
+        uses: docker/bake-action@v7
+        with:
+          files: ./docker-bake.hcl
+          targets: build-ros2
       - name: Test deb with Docker Bake
-        run:  docker buildx bake test-aptsource-ros2 --file docker-bake.hcl 
+        uses: docker/bake-action@v7
+        with:
+          files: ./docker-bake.hcl
+          targets: test-ros2-aptsource
 
   # build-ros-apt-source:
   #   runs-on: ubuntu-latest
