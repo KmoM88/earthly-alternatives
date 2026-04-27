@@ -51,6 +51,9 @@ jobs:
         with:
           files: ./ros-apt-source/ros-apt-source/docker-bake/docker-bake.hcl
           targets: build-ros2, test-aptsource-ros2
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
 
   # build-ros-apt-source:
   #   runs-on: ubuntu-latest
