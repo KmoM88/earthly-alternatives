@@ -5,7 +5,7 @@ on:
 
 defaults:
     run:
-      working-directory: ./submodules/ros-apt-source
+      working-directory: ./submodules/ros-apt-source/ros-apt-source
 
 jobs:
   build-ros2-apt-source:
