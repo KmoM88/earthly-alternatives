@@ -1,4 +1,4 @@
-name: Build Deb packages
+name: Build Deb packages (ros-apt-source)
 
 on:
   workflow_dispatch:
