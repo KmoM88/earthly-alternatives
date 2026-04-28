@@ -1,0 +1,156 @@
+VERSION 0.8
+
+# list of supported platforms per https://www.ros.org/reps/rep-2000.html.
+# This reflects supported platforms for noetic, humble, jazzy, kilted, lyrical and rolling.
+ARG --global supported_ros_platforms = ubuntu:focal ubuntu:jammy ubuntu:noble ubuntu:resolute debian:bookworm debian:buster debian:bullseye debian:trixie
+ARG --global legacy_distros = ubuntu:focal debian:buster debian:bullseye
+
+dpkgbuild:
+  ARG distro = debian:bookworm
+  FROM ${distro}
+  ENV DEBIAN_FRONTEND=noninteractive 
+  ENV TZ=Etc/UTC 
+  DO +ADD_ARCHIVE_SOURCES --distro=${distro}
+  RUN apt-get update
+  # Debian buster has an older version of debhelper but the backports archive has a compatible one
+  # Use backports version to avoid updating package logic for legacy version.
+  RUN if  [ ${distro} = "debian:buster" ]; then \ 
+      echo "deb http://archive.debian.org/debian-archive/debian buster-backports main" | tee /etc/apt/sources.list.d/backports.list > /dev/null && \ 
+      apt-get update && apt-get install -y  dwz/buster-backports debhelper/buster-backports>12 lintian/buster-backports \ 
+      ; else apt-get install -y debhelper lintian ; fi;  
+
+ADD_ARCHIVE_SOURCES:
+  FUNCTION
+  ARG --required distro
+  RUN if [ ${distro} = "debian:buster" ]; then \ 
+       echo "deb http://archive.debian.org/debian/ buster main non-free contrib\ndeb-src http://archive.debian.org/debian/ buster main non-free contrib\ndeb http://archive.debian.org/debian-security/ buster/updates main non-free contrib\ndeb-src http://archive.debian.org/debian-security/ buster/updates main non-free contrib" > /etc/apt/sources.list; \
+      fi;  
+INSTALL_PACKAGE: 
+  FUNCTION
+  ARG --required package_dir
+  ARG --required package
+  COPY ${package_dir}/${package}*.deb ./
+  RUN apt-get install ./${package}*.deb -y
+
+BUILD_PACKAGE: 
+  FUNCTION
+  ARG package
+  ARG target
+  COPY debian debian
+  RUN . /etc/os-release && sed -i "s:~CODENAME:~$VERSION_CODENAME:" debian/changelog 
+  # Set distribution at build time
+  RUN . /etc/os-release && sed -i "s:\$CODENAME:$VERSION_CODENAME:" debian/changelog 
+  COPY README .
+  RUN dpkg-buildpackage 
+  # Lintian on bookworm has an issue resolved in a newer version that has not been backported to bookworm-backports
+  # Don't run lintian on bookworm version of the package since it fails 
+  # Issue: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1033894
+  RUN if  [ ${distro} != "debian:bookworm" ]; then \ 
+      lintian ; fi;  
+  RUN cd .. && for f in *.deb; do sha256sum $f >> $f.sha256.txt; done 
+  SAVE ARTIFACT ../*.txt AS LOCAL output/${target}/
+  SAVE ARTIFACT ../*.dsc AS LOCAL output/${target}/
+  SAVE ARTIFACT ../*.tar.xz AS LOCAL output/${target}/
+  SAVE ARTIFACT ../*.deb AS LOCAL output/${target}/
+  
+
+ros-apt-source:
+  ARG --required distro
+  FROM +dpkgbuild --distro=${distro}
+  RUN mkdir /tmp/pkg
+  WORKDIR /tmp/pkg
+  # add additional folders outside of standard debian packaging ones
+  COPY keys keys
+  DO +BUILD_PACKAGE --package=ros-apt-source --target=${distro}
+
+build-all:
+  FROM debian:bookworm
+  FOR distro IN $supported_ros_platforms
+        BUILD  +ros-apt-source --distro=${distro} 
+  END
+
+test-aptsource-pkg-install:
+  # Test that apt source package is installable and that it configures the necessary files
+  ARG distro = ubuntu:noble
+  ARG repo = ros2
+  ARG version = ros2
+  FROM ${distro}
+  ENV DEBIAN_FRONTEND=noninteractive 
+  ENV TZ=Etc/UTC 
+  DO +ADD_ARCHIVE_SOURCES --distro=${distro}
+  LET package = ${repo}-apt-source
+  DO +INSTALL_PACKAGE --package=${package} --package_dir=./output/${distro}
+  RUN if  [ -f /usr/share/ros-apt-source/${repo}.sources ] && \ 
+          [ -e /usr/share/ros-apt-source/${repo}.sources ] && \ 
+          [ -s /usr/share/ros-apt-source/${repo}.sources \
+  ]; then exit 0; else exit 1; fi;
+  # test that embbeded key is passed
+  RUN  if [ "$legacy_distros" == *"$distro"* ]; then \
+         if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/${repo}.sources > /dev/null ; then \
+            exit 0; \
+            else exit 1; \
+            fi; \ 
+        fi;
+  RUN if  [ -f /usr/share/keyrings/${version}-archive-keyring.gpg ] && \ 
+          [ -e /usr/share/keyrings/${version}-archive-keyring.gpg ] && \ 
+          [ -s /usr/share/keyrings/${version}-archive-keyring.gpg \
+  ]; then exit 0; else exit 1; fi; 
+  RUN if  [ -h /etc/apt/sources.list.d/${version}.sources ]; then exit 0; else exit 1; fi;  
+
+ros2-test-repos:
+  # Test that repo configuration is complete when installing keyring and apt-source packages. 
+  ARG distro = ubuntu:noble
+  ARG package = ros2-apt-source
+
+  FROM ${distro}
+  ENV DEBIAN_FRONTEND=noninteractive 
+  ENV TZ=Etc/UTC 
+  DO +ADD_ARCHIVE_SOURCES --distro=${distro}
+  DO +INSTALL_PACKAGE --package=${package} --package_dir=./output/${distro}
+  RUN apt update
+  RUN apt install ros-build-essential -y
+
+infra-test-repos:
+  # Test that repo configuration is complete when installing keyring and apt-source packages. 
+  ARG distro = ubuntu:noble
+  ARG package = ros2-apt-source
+
+  FROM ${distro}
+  ENV DEBIAN_FRONTEND=noninteractive 
+  ENV TZ=Etc/UTC 
+  DO +ADD_ARCHIVE_SOURCES --distro=${distro}
+  DO +INSTALL_PACKAGE --package=${package} --package_dir=./output/${distro}
+  RUN apt update
+  RUN apt install python3-colcon-core -y
+
+ros-test-repos:
+  ARG distro = ubuntu:focal
+  ARG package = ros-apt-source
+  FROM ${distro}
+  ENV DEBIAN_FRONTEND=noninteractive 
+  ENV TZ=Etc/UTC 
+  DO +ADD_ARCHIVE_SOURCES --distro=${distro}
+  DO +INSTALL_PACKAGE --package=${package} --package_dir=./output/${distro}
+  RUN apt update
+  RUN apt install ros-noetic-catkin -y
+
+integration-check-switch: 
+  # Test users are expected to be able to switch between the testing and main repositories seamlessly. 
+  ARG distro = ubuntu:noble
+  ARG repo = ros2
+  FROM ${distro}
+  DO +ADD_ARCHIVE_SOURCES --distro=${distro}
+  LET main_repo_regex = "packages.ros.org/"${repo}"/"
+  LET testing_repo_regex = "packages.ros.org/"${repo}"-testing/"
+  DO +INSTALL_PACKAGE --package=${repo}-apt-source --package_dir=./output/${distro}
+  RUN apt update
+  RUN apt policy | grep $main_repo_regex
+  RUN apt remove ${repo}-apt-source -y
+  RUN apt update
+  DO +INSTALL_PACKAGE --package=${repo}-testing-apt-source --package_dir=./output/${distro}
+  RUN apt update  
+  RUN apt policy | grep $testing_repo_regex
+  # Verify that main repo is not configured anymore
+  # trailing / is important here to avoid matching ros2*
+  RUN if ! apt policy | grep $main_repo_regex; then exit 0; else exit 1; fi;
+
