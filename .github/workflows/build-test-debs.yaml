@@ -28,26 +28,22 @@ jobs:
       - uses: actions/checkout@v6
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      - name: Build deb with Docker Bake
-        run:  docker buildx bake build-ros2 -f ./ros-apt-source/docker-bake/docker-bake.hcl 
-      - name: Test deb with Docker Bake
+      - name: Build & Test deb with Docker Bake
         run:  docker buildx bake test-aptsource-ros2 -f ./ros-apt-source/docker-bake/docker-bake.hcl 
 
-  # build-ros2-apt-source-bake-action:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v6
-  #       with:
-  #         submodules: 'true'
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v4
-  #       with:
-  #         driver: docker-container
-  #     - name: Build and Test with Docker Bake
-  #       uses: docker/bake-action@v7
-  #       with:
-  #         files: ./ros-apt-source/ros-apt-source/docker-bake/docker-bake.hcl
-  #         targets: build-ros2, test-aptsource-ros2
+  build-ros2-apt-source-bake-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver: docker-container
+      - name: Build and Test with Docker Bake
+        uses: docker/bake-action@v7
+        with:
+          files: ./ros-apt-source/docker-bake/docker-bake.hcl
+          targets: test-aptsource-ros2
 
   # build-ros-apt-source:
   #   runs-on: ubuntu-latest
