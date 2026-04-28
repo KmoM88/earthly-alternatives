@@ -36,11 +36,11 @@ BUILD_PACKAGE:
   FUNCTION
   ARG package
   ARG target
-  COPY debian debian
+  COPY ./data/debian debian
   RUN . /etc/os-release && sed -i "s:~CODENAME:~$VERSION_CODENAME:" debian/changelog 
   # Set distribution at build time
   RUN . /etc/os-release && sed -i "s:\$CODENAME:$VERSION_CODENAME:" debian/changelog 
-  COPY README .
+  COPY ./data/README .
   RUN dpkg-buildpackage 
   # Lintian on bookworm has an issue resolved in a newer version that has not been backported to bookworm-backports
   # Don't run lintian on bookworm version of the package since it fails 
@@ -60,7 +60,7 @@ ros-apt-source:
   RUN mkdir /tmp/pkg
   WORKDIR /tmp/pkg
   # add additional folders outside of standard debian packaging ones
-  COPY keys keys
+  COPY ./data/keys/ keys/
   DO +BUILD_PACKAGE --package=ros-apt-source --target=${distro}
 
 build-all:
