@@ -19,8 +19,8 @@ group "default" {
 }
 
 target "_common" {
-  context = "ros-apt-source/ros-apt-source/docker-bake"
-  dockerfile = "Dockerfile"
+  context = "ros-apt-source"
+  dockerfile = "docker-bake/Dockerfile"
 }
 
 target "build-ros2" {
@@ -33,7 +33,7 @@ target "build-ros2" {
     DISTRO = "${distro}"
   }
   target = "artifacts"
-  output = ["./output/${distro}"]
+  output = ["./ros-apt-source/output-docker-bake/${distro}"]
 }
 
 target "test-aptsource-ros2" {

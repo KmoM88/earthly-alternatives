@@ -22,8 +22,8 @@ FROM base AS builder
 ARG DISTRO
 ARG PACKAGE=ros-apt-source
 WORKDIR /tmp/pkg
-COPY debian debian
-COPY keys keys
+COPY ../data/debian debian
+COPY ../data/keys keys
 RUN . /etc/os-release && sed -i "s:~CODENAME:~$VERSION_CODENAME:" debian/changelog && \
     sed -i "s:\$CODENAME:$VERSION_CODENAME:" debian/changelog
 RUN dpkg-buildpackage
