@@ -105,6 +105,20 @@ jobs:
       - name: Build & Test deb with Docker Bake
         run:  docker buildx bake test-aptsource-ros -f ./ros-apt-source/docker-bake/docker-bake.hcl 
 
+  build-ros-apt-source-bake-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro: [ubuntu:focal,debian:buster]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build & Test deb with Docker Bake
+        run:  docker buildx bake test-aptsource-ros -f ./ros-apt-source/docker-bake/docker-bake.hcl 
+        env:
+          DISTRIBUTION_ROS: ${{  matrix.distro }}
+
   build-ros-apt-source-bake-action:
     runs-on: ubuntu-latest
     steps:
@@ -118,6 +132,26 @@ jobs:
         with:
           files: ./ros-apt-source/docker-bake/docker-bake.hcl
           targets: test-aptsource-ros
+
+  build-ros-apt-source-bake-action-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro: [ubuntu:focal,debian:buster]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver: docker-container
+      - name: Build and Test with Docker Bake
+        uses: docker/bake-action@v7
+        with:
+          files: ./ros-apt-source/docker-bake/docker-bake.hcl
+          targets: test-aptsource-ros
+        env:
+          DISTRIBUTION_ROS: ${{  matrix.distro }}
+
   # ros2-ci:
   #   runs-on: ubuntu-latest
   #   strategy:
