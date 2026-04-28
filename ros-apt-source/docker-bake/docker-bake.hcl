@@ -33,7 +33,7 @@ target "build-ros2" {
     DISTRO = "${distro}"
   }
   target = "artifacts"
-  output = ["./ros-apt-source/output-docker-bake/${distro}"]
+  output = ["./ros-apt-source/docker-bake/output/${distro}"]
 }
 
 target "test-aptsource-ros2" {
