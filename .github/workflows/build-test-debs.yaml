@@ -57,11 +57,11 @@ jobs:
           sudo wget 'https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64' -O /usr/local/bin/earthly
           sudo chmod 755 /usr/local/bin/earthly
       - name: Build apt-source deb with Earthly
-        run: earthly +ros-apt-source --distro=${{ matrix.distro }}
+        run: earthly ./ros-apt-source+ros-apt-source --distro=${{ matrix.distro }}
       - name: Test ros 2 apt-source deb with Earthly
         run:  | 
-              earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros --version=ros
-              earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros-testing --version=ros
+              earthly ./ros-apt-source+test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros --version=ros
+              earthly ./ros-apt-source+test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros-testing --version=ros
 
   build-ros-apt-source-bake:
     runs-on: ubuntu-latest
