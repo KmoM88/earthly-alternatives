@@ -7,7 +7,7 @@ variable "REPO_ROS2" {
 }
 
 variable "DISTRIBUTION_ROS" {
-  default = "ubuntu:focal,debian:buster,debian:bullseye"
+  default = "ubuntu:focal,debian:buster"
 }
 
 variable "REPO_ROS" {
@@ -16,6 +16,10 @@ variable "REPO_ROS" {
 
 group "default" {
   targets = ["test-aptsource-ros2", "test-aptsource-ros"]
+}
+
+group "build-all" {
+  targets = ["build-ros2", "build-ros"]
 }
 
 target "_common" {
@@ -76,7 +80,7 @@ target "test-aptsource-ros" {
     DISTRO = "${distro}"
     REPO   = "${repo}"
     VERSION = "ros"
-    LEGACY_DISTROS = "${DISTRIBUTION_ROS}"
+    LEGACY_DISTROS = "ubuntu:focal,debian:buster,debian:bullseye"
   }
   target = "test-aptsource"
 }

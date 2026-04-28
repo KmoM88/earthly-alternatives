@@ -45,25 +45,46 @@ jobs:
           files: ./ros-apt-source/docker-bake/docker-bake.hcl
           targets: test-aptsource-ros2
 
-  # build-ros-apt-source:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       distro: [ubuntu:focal,debian:buster]
-  #   steps:
-  #     - uses: actions/checkout@v6
-  #       with:
-  #         submodules: 'true'
-  #     - name: Setup Earthly
-  #       run: |
-  #         sudo wget 'https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64' -O /usr/local/bin/earthly
-  #         sudo chmod 755 /usr/local/bin/earthly
-  #     - name: Build apt-source deb
-  #       run: earthly +ros-apt-source --distro=${{ matrix.distro }}
-  #     - name: Test ros 2 apt-source deb with Earthly
-  #       run:  | 
-  #             earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros --version=ros
-  #             earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros-testing --version=ros
+  build-ros-apt-source-earthly:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro: [ubuntu:focal,debian:buster]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Earthly
+        run: |
+          sudo wget 'https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64' -O /usr/local/bin/earthly
+          sudo chmod 755 /usr/local/bin/earthly
+      - name: Build apt-source deb with Earthly
+        run: earthly +ros-apt-source --distro=${{ matrix.distro }}
+      - name: Test ros 2 apt-source deb with Earthly
+        run:  | 
+              earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros --version=ros
+              earthly +test-aptsource-pkg-install --distro=${{ matrix.distro }} --repo=ros-testing --version=ros
+
+  build-ros-apt-source-bake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build & Test deb with Docker Bake
+        run:  docker buildx bake test-aptsource-ros -f ./ros-apt-source/docker-bake/docker-bake.hcl 
+
+  build-ros-apt-source-bake-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver: docker-container
+      - name: Build and Test with Docker Bake
+        uses: docker/bake-action@v7
+        with:
+          files: ./ros-apt-source/docker-bake/docker-bake.hcl
+          targets: test-aptsource-ros
   # ros2-ci:
   #   runs-on: ubuntu-latest
   #   strategy:
