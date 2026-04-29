@@ -176,8 +176,12 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
         container = container.with_exec(["sh", "-c", f"test -h /etc/apt/sources.list.d/{version}.sources"])
 
         await container.sync()
-    except (dagger.ExecError, dagger.QueryError) as e:
-        print(f"An error occurred during test: {e}", file=sys.stderr)
+    except dagger.ExecError as e:
+        print(f"A command in the test pipeline failed for {distro}: {e}", file=sys.stderr)
+        print("\n--- STDOUT ---", file=sys.stderr)
+        print(e.stdout, file=sys.stderr)
+        print("\n--- STDERR ---", file=sys.stderr)
+        print(e.stderr, file=sys.stderr)
         sys.exit(1)
 
 
