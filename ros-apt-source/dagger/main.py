@@ -170,8 +170,11 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
             f"if [ -f /usr/share/ros-apt-source/{repo}.sources ] && [ -e /usr/share/ros-apt-source/{repo}.sources ] && [ -s /usr/share/ros-apt-source/{repo}.sources ]; then exit 0; else exit 1; fi;"
         ])
 
-        # Check 2: Embedded key for legacy distros (Removed, as this check was based on a faulty premise)
-
+        # Check 2: Embedded key for legacy distros
+        container = container.with_exec([
+            "sh", "-c",
+            f"if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/{repo}.sources > /dev/null; then exit 0; else exit 1; fi;"
+        ])
 
         # Check 3: keyring file exists and is not empty
         container = container.with_exec([
