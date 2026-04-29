@@ -81,6 +81,7 @@ jobs:
   build-ros2-apt-source-dagger:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         distro: [ubuntu:focal,ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie]
     steps:
