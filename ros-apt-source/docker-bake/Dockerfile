@@ -68,7 +68,8 @@ RUN case "$LEGACY_DISTROS" in \
     *) \
       echo "Distro not legacy: $DISTRO. Skipping check."; \
       exit 0; \
-      ;;
+      ;; \
+esac
 RUN if [ -f /usr/share/keyrings/${VERSION}-archive-keyring.gpg ] && \
       [ -e /usr/share/keyrings/${VERSION}-archive-keyring.gpg ] && \
       [ -s /usr/share/keyrings/${VERSION}-archive-keyring.gpg ] \
