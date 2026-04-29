@@ -1,6 +1,7 @@
 import asyncio
 import argparse
 import sys
+import time
 from typing import List
 
 import dagger
@@ -150,6 +151,7 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
 
         package_name = f"{repo}-apt-source"
         container = await install_package(container, package_name, package_dir)
+        container = container.with_env_variable("TEST_TIMESTAMP", str(time.time()))
 
         # Run checks
         # Check 1: sources file exists and is not empty
