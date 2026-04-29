@@ -95,7 +95,7 @@ test-aptsource-pkg-install:
       fi \
       ;; \
     *) \
-      echo "Distro moderna: $distro. Saltando check."; \
+      echo "Distro not legacy: $distro. Skipping check."; \
       exit 0; \
       ;; \
   esac
