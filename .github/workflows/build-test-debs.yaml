@@ -7,6 +7,7 @@ jobs:
   build-ros2-apt-source-earthly:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         distro: [ubuntu:focal,ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie]
     steps:
@@ -34,6 +35,7 @@ jobs:
   build-ros2-apt-source-bake-matrix:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         distro: [ubuntu:focal,ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie]
     steps:
