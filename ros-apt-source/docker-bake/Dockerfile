@@ -59,7 +59,7 @@ RUN if [ -f /usr/share/ros-apt-source/${REPO}.sources ] && \
 RUN case "$LEGACY_DISTROS" in \
     *"$DISTRO"*) \
       echo "Distro legacy detected: $DISTRO"; \
-      if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/${repo}.sources > /dev/null; then \
+      if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/${REPO}.sources > /dev/null; then \
         exit 0; \
       else \
         exit 1; \
