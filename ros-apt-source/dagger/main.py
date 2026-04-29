@@ -153,29 +153,51 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
         container = await install_package(container, package_name, package_dir)
 
         # Run checks
+        print(f"--- Starting checks for {distro} ---", file=sys.stderr)
+
         # Check 1: sources file exists and is not empty
-        container = container.with_exec([
-            "sh", "-c",
-            f"if [ -f /usr/share/ros-apt-source/{repo}.sources ] && [ -e /usr/share/ros-apt-source/{repo}.sources ] && [ -s /usr/share/ros-apt-source/{repo}.sources ]; then exit 0; else exit 1; fi;"
-        ])
+        check1_cmd = f"set -euxo pipefail; [ -f /usr/share/ros-apt-source/{repo}.sources ] && [ -e /usr/share/ros-apt-source/{repo}.sources ] && [ -s /usr/share/ros-apt-source/{repo}.sources ]"
+        print(f"Running check 1: {check1_cmd}", file=sys.stderr)
+        check1_container = container.with_exec(["sh", "-c", check1_cmd])
+        check1_stdout = await check1_container.stdout()
+        check1_stderr = await check1_container.stderr()
+        print(f"Check 1 stdout: {check1_stdout.strip()}", file=sys.stderr)
+        print(f"Check 1 stderr: {check1_stderr.strip()}", file=sys.stderr)
+        print(f"Check 1 passed for {distro}", file=sys.stderr)
 
         # Check 2: Embedded key for legacy distros
         if distro in legacy_distros:
-            container = container.with_exec([
-                "sh", "-c",
-                f"if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/{repo}.sources > /dev/null ; then exit 0; else exit 1; fi;"
-            ])
+            check2_cmd = f"set -euxo pipefail; grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/{repo}.sources"
+            print(f"Running check 2 (legacy): {check2_cmd}", file=sys.stderr)
+            # Remove > /dev/null to see grep output on failure
+            check2_container = container.with_exec(["sh", "-c", check2_cmd])
+            check2_stdout = await check2_container.stdout()
+            check2_stderr = await check2_container.stderr()
+            print(f"Check 2 stdout: {check2_stdout.strip()}", file=sys.stderr)
+            print(f"Check 2 stderr: {check2_stderr.strip()}", file=sys.stderr)
+            print(f"Check 2 passed for {distro}", file=sys.stderr)
 
         # Check 3: keyring file exists and is not empty
-        container = container.with_exec([
-            "sh", "-c",
-            f"if  [ -f /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -e /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -s /usr/share/keyrings/{version}-archive-keyring.gpg ]; then exit 0; else exit 1; fi;"
-        ])
+        check3_cmd = f"set -euxo pipefail; [ -f /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -e /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -s /usr/share/keyrings/{version}-archive-keyring.gpg ]"
+        print(f"Running check 3: {check3_cmd}", file=sys.stderr)
+        check3_container = container.with_exec(["sh", "-c", check3_cmd])
+        check3_stdout = await check3_container.stdout()
+        check3_stderr = await check3_container.stderr()
+        print(f"Check 3 stdout: {check3_stdout.strip()}", file=sys.stderr)
+        print(f"Check 3 stderr: {check3_stderr.strip()}", file=sys.stderr)
+        print(f"Check 3 passed for {distro}", file=sys.stderr)
 
         # Check 4: sources.list.d symlink exists
-        container = container.with_exec(["sh", "-c", f"test -h /etc/apt/sources.list.d/{version}.sources"])
+        check4_cmd = f"set -euxo pipefail; test -h /etc/apt/sources.list.d/{version}.sources"
+        print(f"Running check 4: {check4_cmd}", file=sys.stderr)
+        check4_container = container.with_exec(["sh", "-c", check4_cmd])
+        check4_stdout = await check4_container.stdout()
+        check4_stderr = await check4_container.stderr()
+        print(f"Check 4 stdout: {check4_stdout.strip()}", file=sys.stderr)
+        print(f"Check 4 stderr: {check4_stderr.strip()}", file=sys.stderr)
+        print(f"Check 4 passed for {distro}", file=sys.stderr)
 
-        await container.sync()
+        print(f"All checks passed successfully for {distro}!", file=sys.stderr)
     except dagger.ExecError as e:
         print(f"A command in the test pipeline failed for {distro}: {e}", file=sys.stderr)
         print("\n--- STDOUT ---", file=sys.stderr)
