@@ -24,7 +24,7 @@ for i in $(seq 1 "$RUNS"); do
             ;;
         "docker-bake")
             OUTPUT_DIR="ros-apt-source/docker-bake/output"
-            COMMAND="docker buildx bake -f ./ros-apt-source/docker-bake/docker-bake.hcl"
+            COMMAND="docker buildx bake build-all -f ./ros-apt-source/docker-bake/docker-bake.hcl"
             ;;
         "dagger")
             OUTPUT_DIR="ros-apt-source/dagger/output"
