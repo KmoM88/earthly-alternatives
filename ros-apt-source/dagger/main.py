@@ -5,6 +5,7 @@ from typing import List
 
 import dagger
 
+DAGGER_NO_NAG=1
 supported_ros_platforms = [
     "ubuntu:focal",
     "ubuntu:jammy",
@@ -155,20 +156,20 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
         # Check 1: sources file exists and is not empty
         container = container.with_exec([
             "sh", "-c",
-            f"test -f /usr/share/ros-apt-source/{repo}.sources && test -s /usr/share/ros-apt-source/{repo}.sources"
+            f"if [ -f /usr/share/ros-apt-source/{repo}.sources ] && [ -e /usr/share/ros-apt-source/{repo}.sources ] && [ -s /usr/share/ros-apt-source/{repo}.sources ]; then exit 0; else exit 1; fi;"
         ])
 
         # Check 2: Embedded key for legacy distros
         if distro in legacy_distros:
             container = container.with_exec([
                 "sh", "-c",
-                f"grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/{repo}.sources > /dev/null"
+                f"if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/{repo}.sources > /dev/null ; then exit 0; else exit 1; fi;"
             ])
 
         # Check 3: keyring file exists and is not empty
         container = container.with_exec([
             "sh", "-c",
-            f"test -f /usr/share/keyrings/{version}-archive-keyring.gpg && test -s /usr/share/keyrings/{version}-archive-keyring.gpg"
+            f"if  [ -f /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -e /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -s /usr/share/keyrings/{version}-archive-keyring.gpg ]; then exit 0; else exit 1; fi;"
         ])
 
         # Check 4: sources.list.d symlink exists
