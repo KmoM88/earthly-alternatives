@@ -99,11 +99,11 @@ jobs:
           pip install -r ros-apt-source/dagger/requirements.txt
       - name: Build with Dagger
         run: |
-          python -m ros-apt-source.dagger.main build --distro ${{ matrix.distro }}
+          dagger run python ros-apt-source/dagger/main.py build --distro ${{ matrix.distro }}
       - name: Test with Dagger
         run: |
-          python -m ros-apt-source.dagger.main test --distro ${{ matrix.distro }} --repo ros2
-          python -m ros-apt-source.dagger.main test --distro ${{ matrix.distro }} --repo ros2-testing
+          dagger run python ros-apt-source/dagger/main.py test --distro ${{ matrix.distro }} --repo ros2
+          dagger run python ros-apt-source/dagger/main.py test --distro ${{ matrix.distro }} --repo ros2-testing
 
   # build-ros-apt-source-earthly:
   #   runs-on: ubuntu-latest

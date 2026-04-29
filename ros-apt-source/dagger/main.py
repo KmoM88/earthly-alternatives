@@ -165,39 +165,24 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
         print(f"--- Starting checks for {distro} ---", file=sys.stderr)
 
         # Check 1: sources file exists and is not empty
-        check1_cmd = f"set -euxo pipefail; [ -f /usr/share/ros-apt-source/{repo}.sources ] && [ -e /usr/share/ros-apt-source/{repo}.sources ] && [ -s /usr/share/ros-apt-source/{repo}.sources ]"
-        print(f"Running check 1: {check1_cmd}", file=sys.stderr)
-        check1_container = container.with_exec(["sh", "-c", check1_cmd])
-        check1_stdout = await check1_container.stdout()
-        check1_stderr = await check1_container.stderr()
-        print(f"Check 1 stdout: {check1_stdout.strip()}", file=sys.stderr)
-        print(f"Check 1 stderr: {check1_stderr.strip()}", file=sys.stderr)
-        print(f"Check 1 passed for {distro}", file=sys.stderr)
+        container = container.with_exec([
+            "sh", "-c",
+            f"if [ -f /usr/share/ros-apt-source/{repo}.sources ] && [ -e /usr/share/ros-apt-source/{repo}.sources ] && [ -s /usr/share/ros-apt-source/{repo}.sources ]; then exit 0; else exit 1; fi;"
+        ])
 
         # Check 2: Embedded key for legacy distros (Removed, as this check was based on a faulty premise)
 
 
         # Check 3: keyring file exists and is not empty
-        check3_cmd = f"set -euxo pipefail; [ -f /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -e /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -s /usr/share/keyrings/{version}-archive-keyring.gpg ]"
-        print(f"Running check 3: {check3_cmd}", file=sys.stderr)
-        check3_container = container.with_exec(["sh", "-c", check3_cmd])
-        check3_stdout = await check3_container.stdout()
-        check3_stderr = await check3_container.stderr()
-        print(f"Check 3 stdout: {check3_stdout.strip()}", file=sys.stderr)
-        print(f"Check 3 stderr: {check3_stderr.strip()}", file=sys.stderr)
-        print(f"Check 3 passed for {distro}", file=sys.stderr)
+        container = container.with_exec([
+            "sh", "-c",
+            f"if  [ -f /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -e /usr/share/keyrings/{version}-archive-keyring.gpg ] && [ -s /usr/share/keyrings/{version}-archive-keyring.gpg ]; then exit 0; else exit 1; fi;"
+        ])
 
         # Check 4: sources.list.d symlink exists
-        check4_cmd = f"set -euxo pipefail; test -h /etc/apt/sources.list.d/{version}.sources"
-        print(f"Running check 4: {check4_cmd}", file=sys.stderr)
-        check4_container = container.with_exec(["sh", "-c", check4_cmd])
-        check4_stdout = await check4_container.stdout()
-        check4_stderr = await check4_container.stderr()
-        print(f"Check 4 stdout: {check4_stdout.strip()}", file=sys.stderr)
-        print(f"Check 4 stderr: {check4_stderr.strip()}", file=sys.stderr)
-        print(f"Check 4 passed for {distro}", file=sys.stderr)
+        container = container.with_exec(["sh", "-c", f"test -h /etc/apt/sources.list.d/{version}.sources"])
 
-        print(f"All checks passed successfully for {distro}!", file=sys.stderr)
+        await container.sync()
     except dagger.ExecError as e:
         print(f"A command in the test pipeline failed for {distro}: {e}", file=sys.stderr)
         print("\n--- STDOUT ---", file=sys.stderr)
