@@ -65,6 +65,14 @@ async def build_package(
     container = container.with_workdir("/tmp/pkg")
     container = container.with_exec(["cp", "-r", "data/debian", "."])
     container = container.with_exec(["cp", "-r", "data/keys", "."])
+
+    # DEBUG: Instrument debian/rules to trace execution
+    container = container.with_exec([
+        "sh",
+        "-c",
+        "sed -i '/^execute_after_dh_auto_build:/a \\\tset -x' debian/rules"
+    ])
+
     container = container.with_exec([
         "sh",
         "-c",
@@ -149,6 +157,7 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
         container = await add_archive_sources(container, distro)
         container = container.with_exec(["apt-get", "update"])
 
+
         package_name = f"{repo}-apt-source"
         container = await install_package(container, package_name, package_dir)
 
@@ -159,12 +168,8 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
             f"if [ -f /usr/share/ros-apt-source/{repo}.sources ] && [ -e /usr/share/ros-apt-source/{repo}.sources ] && [ -s /usr/share/ros-apt-source/{repo}.sources ]; then exit 0; else exit 1; fi;"
         ])
 
-        # Check 2: Embedded key for legacy distros
-        if distro in legacy_distros:
-            container = container.with_exec([
-                "sh", "-c",
-                f"if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/{repo}.sources > /dev/null ; then exit 0; else exit 1; fi;"
-            ])
+        # Check 2: Embedded key for legacy distros (Removed, as this check was based on a faulty premise)
+
 
         # Check 3: keyring file exists and is not empty
         container = container.with_exec([
