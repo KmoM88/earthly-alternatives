@@ -1,5 +1,5 @@
 variable "DISTRIBUTION_ROS2" {
-  default = "ubuntu:focal,ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie"
+  default = "ubuntu:jammy,ubuntu:noble,ubuntu:resolute,debian:bookworm,debian:bullseye,debian:trixie"
 }
 
 variable "REPO_ROS2" {
