@@ -59,8 +59,8 @@ Note: Benchmarks were run on identical GitHub Actions runners (ubuntu-latest) an
 
 ---
 
-## Conclusion (highly opinionated)
+## Conclusion (subjective)
 
-While Dagger presents a significantly more complete, powerful, and versatile ecosystem for infrastructure management, it introduces an abstraction layer and an asynchronous complexity (e.g., strict container reassignments, lazy evaluation caching) that exceeds our current requirements.
+While Dagger presents a significantly more complete, powerful, and versatile ecosystem for infrastructure management, it introduces an abstraction layer and an asynchronous complexity that seems to exceeds the needs for which Earthly is used.
 
 For the specific use cases of the OSRF CI workflows Docker Bake is the more pragmatic choice. It provides a more direct, faster-to-implement solution with a negligible learning curve, effectively replacing Earthly's parallelization capabilities without over-engineering the pipeline.
