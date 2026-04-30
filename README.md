@@ -52,7 +52,7 @@ Note: Benchmarks were run on identical GitHub Actions runners (ubuntu-latest) an
 
 | Metric | Earthly (Baseline) | Dagger (Python SDK) | Docker Bake |
 |--------|--------------------|---------------------|-------------|
-| Engine Setup Time | ~2 s | ~10 s (Engine boot) | (Native to runner) |
+| Engine Setup Time | ~2 s | ~10 s | (Native to runner) |
 | Cold Build (All Distros) | ~115 s | ~145 s | ~ 114 s |
 | Cached Build (All Distros) | ~1.7 s | ~ 4.2 s | < 1 s |
 | Code Footprint (Lines) | 106 | 227 | 162 |
