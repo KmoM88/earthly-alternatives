@@ -2,13 +2,6 @@ name: Benchmark Build Tools
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'ros-apt-source/**'
-      - '.github/workflows/benchmark.yaml'
-      - 'Makefile'
 
 jobs:
   benchmark:
