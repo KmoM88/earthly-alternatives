@@ -51,7 +51,7 @@ target "test-aptsource-ros2" {
     DISTRO = "${distro}"
     REPO   = "${repo}"
     VERSION = "ros2"
-    LEGACY_DISTROS = "${DISTRIBUTION_ROS}"
+    LEGACY_DISTROS = "ubuntu:focal,debian:buster,debian:bullseye"
   }
   target = "test-aptsource"
 }
