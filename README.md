@@ -57,6 +57,8 @@ Note: Benchmarks were run on identical GitHub Actions runners (ubuntu-latest) an
 | Cached Build (All Distros) | ~1.7 s | ~ 4.2 s | < 1 s |
 | Code Footprint (Lines) | 106 | 227 | 162 |
 
+For the job migrated `build-ros2-apt-source` in GHA where the build and test is done by distribution on a single runner each, the times are arround 1 min for any of the tools. More deep analysis can be done on setting up caches for each tool.
+
 ---
 
 ## Conclusion (subjective)
@@ -64,3 +66,9 @@ Note: Benchmarks were run on identical GitHub Actions runners (ubuntu-latest) an
 While Dagger presents a significantly more complete, powerful, and versatile ecosystem for infrastructure management, it introduces an abstraction layer and an asynchronous complexity that seems to exceeds the needs for which Earthly is used.
 
 For the specific use cases of the OSRF CI workflows Docker Bake is the more pragmatic choice. It provides a more direct, faster-to-implement solution with a negligible learning curve, effectively replacing Earthly's parallelization capabilities without over-engineering the pipeline.
+
+---
+
+### Anex: Issue in ros-apt-sources
+
+During the migration of the job `build-ros2-apt-source` an issue was found in the original Earthly file. Resported in [link].
