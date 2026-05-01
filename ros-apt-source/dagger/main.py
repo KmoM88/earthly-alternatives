@@ -164,6 +164,7 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
         # Run checks
         print(f"--- Starting checks for {distro} ---", file=sys.stderr)
 
+        await container.terminal()
         # Check 1: sources file exists and is not empty
         container = container.with_exec([
             "sh", "-c",
@@ -185,7 +186,6 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
 
         # Check 4: sources.list.d symlink exists
         container = container.with_exec(["sh", "-c", f"test -h /etc/apt/sources.list.d/{version}.sources"])
-
         await container.sync()
     except dagger.ExecError as e:
         print(f"A command in the test pipeline failed for {distro}: {e}")
