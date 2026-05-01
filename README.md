@@ -8,7 +8,7 @@ The objective of this project is to analyze and compare viable alternatives to E
 * Dagger (using the Python SDK)
 * Docker Bake
 
-This repository will serve as a testbed to evaluate these alternatives. We will import several of our existing microservices as Git submodules and implement their build logic using each of the candidate tools. The goal is to produce a comprehensive comparative analysis to inform our migration strategy.
+This repository will serve as a testbed to evaluate these alternatives. The goal is to produce a comprehensive comparative analysis to inform our migration strategy.
 
 ---
 
