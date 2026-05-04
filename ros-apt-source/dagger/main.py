@@ -164,7 +164,6 @@ async def test_aptsource_pkg_install(distro: str, repo: str, version: str):
         # Run checks
         print(f"--- Starting checks for {distro} ---", file=sys.stderr)
 
-        await container.terminal()
         # Check 1: sources file exists and is not empty
         container = container.with_exec([
             "sh", "-c",
