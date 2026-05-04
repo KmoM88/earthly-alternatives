@@ -56,18 +56,18 @@ RUN if [ -f /usr/share/ros-apt-source/${REPO}.sources ] && \
       [ -e /usr/share/ros-apt-source/${REPO}.sources ] && \
       [ -s /usr/share/ros-apt-source/${REPO}.sources ] \
       ; then exit 0; else exit 1; fi;
-RUN case "$LEGACY_DISTROS" in \
-    *"$DISTRO"*) \
-      echo "Distro legacy detected: $DISTRO"; \
-      if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/${REPO}.sources > /dev/null; then \
+RUN case "$legacy_distros" in \
+    *"$distro"*) \
+      echo "Distro legacy detected: $distro"; \
+      exit 0; \
+      ;; \
+    *) \
+      echo "Distro not legacy: $distro. Skipping check."; \
+      if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/${repo}.sources > /dev/null; then \
         exit 0; \
       else \
         exit 1; \
       fi \
-      ;; \
-    *) \
-      echo "Distro not legacy: $DISTRO. Skipping check."; \
-      exit 0; \
       ;; \
 esac
 RUN if [ -f /usr/share/keyrings/${VERSION}-archive-keyring.gpg ] && \

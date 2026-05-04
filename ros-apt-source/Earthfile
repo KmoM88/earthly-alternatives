@@ -88,15 +88,15 @@ test-aptsource-pkg-install:
   RUN case "$legacy_distros" in \
     *"$distro"*) \
       echo "Distro legacy detected: $distro"; \
+      exit 0; \
+      ;; \
+    *) \
+      echo "Distro not legacy: $distro. Skipping check."; \
       if grep 'BEGIN PGP PUBLIC KEY BLOCK' /usr/share/ros-apt-source/${repo}.sources > /dev/null; then \
         exit 0; \
       else \
         exit 1; \
       fi \
-      ;; \
-    *) \
-      echo "Distro not legacy: $distro. Skipping check."; \
-      exit 0; \
       ;; \
   esac
   RUN if  [ -f /usr/share/keyrings/${version}-archive-keyring.gpg ] && \ 
